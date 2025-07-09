@@ -84,7 +84,7 @@
     <button onclick="restartGame()">もう一度？</button>
   </div>
   <script>
-    const canvas = document.getElementById("gameCanvas");
+const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
 const leftBtn = document.getElementById("leftButton");
@@ -106,6 +106,8 @@ let player, bullets, enemies, turrets;
 let currentStage = 0;
 let currentWave = 0;
 let waveActive = false;
+let groupIndex = 0;
+let bossSpawned = false;
 let turretLimit = 4;
 let turretAmmo = 1000;
 let autoShootInterval;
@@ -151,7 +153,6 @@ function showWaveStart(waveNum) {
 function spawnEnemyGroup(count, hp) {
   const line = Math.floor(Math.random() * 3);
   const spacingY = 25;
-
   for (let i = 0; i < count; i++) {
     enemies.push({
       x: lineX[line],
@@ -177,6 +178,7 @@ function spawnBoss(type) {
     lineIndex: 1
   });
   showWarning("脅威接近中");
+  bossSpawned = true;
 }
 
 function startNextWave() {
@@ -186,18 +188,21 @@ function startNextWave() {
     currentWave = 0;
     return;
   }
+
   const wave = stage.waves[currentWave];
   waveActive = true;
+  groupIndex = 0;
+  bossSpawned = false;
+
   showWaveStart(currentWave);
 
-  let groupIndex = 0;
   const groupInterval = setInterval(() => {
     if (groupIndex < wave.groups) {
       spawnEnemyGroup(12, wave.enemyHp);
       groupIndex++;
     } else {
       clearInterval(groupInterval);
-      if (wave.boss) {
+      if (wave.boss && !bossSpawned) {
         setTimeout(() => spawnBoss(wave.boss), 1500);
       }
     }
@@ -205,7 +210,18 @@ function startNextWave() {
 }
 
 function updateWaveProgress() {
-  if (waveActive && enemies.length === 0) {
+  const stage = stages[currentStage];
+  if (!stage) return;
+
+  const wave = stage.waves[currentWave];
+  if (!wave) return;
+
+  if (
+    waveActive &&
+    enemies.length === 0 &&
+    groupIndex >= wave.groups &&
+    (!wave.boss || bossSpawned)
+  ) {
     currentWave++;
     waveActive = false;
     setTimeout(startNextWave, 2000);
@@ -256,7 +272,7 @@ function update() {
 
   enemies.forEach(e => {
     e.y += 1;
-    if (Math.random() < 0.01) {
+    if (e.y < canvas.height / 2 && Math.random() < 0.01) {
       if (Math.random() < 0.5 && e.lineIndex > 0) e.lineIndex--;
       else if (e.lineIndex < 2) e.lineIndex++;
       e.x = lineX[e.lineIndex];
