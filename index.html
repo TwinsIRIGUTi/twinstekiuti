@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>梅割りツインズ：もつ煮の逆襲</title>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      color: white;
+      font-family: sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+      overflow: hidden;
+    }
+    canvas {
+      background: #111;
+      display: block;
+      margin: 0 auto;
+    }
+    .controls {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 5px;
+    }
+    button {
+      width: 80px;
+      height: 60px;
+      font-size: 28px;
+      background: #444;
+      color: white;
+      border: none;
+      border-radius: 10px;
+      touch-action: manipulation;
+    }
+    .labels {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 2px;
+      font-size: 14px;
+    }
+    #gameOver, #warningText, #waveText {
+      position: absolute;
+      top: 40%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-size: 24px;
+      color: yellow;
+      text-align: center;
+    }
+    #gameOver {
+      display: none;
+      background: rgba(0,0,0,0.8);
+      padding: 20px;
+      border: 2px solid white;
+      border-radius: 10px;
+    }
+    .hidden {
+      display: none;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="gameCanvas" width="320" height="640"></canvas>
+  <div class="controls">
+    <button id="leftButton">◀</button>
+    <button id="placeTurretButton">🔰</button>
+    <button id="rightButton">▶</button>
+    <button id="pauseButton">⏸</button>
+  </div>
+  <div class="labels">
+    <span>左へ</span>
+    <span>設置</span>
+    <span>右へ</span>
+    <span>停止</span>
+  </div>
+  <div id="warningText" class="hidden"></div>
+  <div id="waveText" class="hidden"></div>
+  <div id="gameOver">
+    <div id="finalScore">スコア: </div>
+    <div id="finalTime">生存時間: </div>
+    <button onclick="restartGame()">もう一度？</button>
+  </div>
+  <script>
+    // JavaScript部分は長いため次のメッセージに分けて記載します。
+  </script>
+</body>
+</html>
