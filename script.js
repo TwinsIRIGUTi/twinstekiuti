@@ -119,8 +119,13 @@ function startNextWave() {
   showWaveStart(currentWave);
 
   const groupInterval = setInterval(() => {
+    if (!waveActive) {
+      clearInterval(groupInterval);
+      return;
+    }
+
     if (groupIndex < wave.groups) {
-      spawnEnemyGroup(12, wave.enemyHp);
+      spawnEnemyGroup(10, wave.enemyHp);
       groupIndex++;
     } else {
       clearInterval(groupInterval);
@@ -128,7 +133,7 @@ function startNextWave() {
         setTimeout(() => spawnBoss(wave.boss), 1500);
       }
     }
-  }, 1500);
+  }, 2000);
 }
 
 function updateWaveProgress() {
@@ -149,7 +154,6 @@ function updateWaveProgress() {
   }
 
   if (finalBossSpawned && enemies.length === 0 && !isGameOver) {
-    // 面クリア（仮：再スタート）
     setTimeout(() => {
       alert("面クリア！");
       restartGame();
