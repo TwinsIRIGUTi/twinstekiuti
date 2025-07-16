@@ -1,0 +1,87 @@
+body {
+  margin: 0;
+  background: black;
+  color: white;
+  font-family: sans-serif;
+  touch-action: manipulation;
+  -webkit-user-select: none;
+  -webkit-touch-callout: none;
+  user-select: none;
+}
+
+canvas {
+  display: block;
+  margin: auto;
+  background: #222;
+  touch-action: none;
+}
+
+#ui {
+  text-align: center;
+  margin-top: 10px;
+}
+
+.control-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  align-items: center;
+}
+
+.control-buttons button {
+  font-size: 24px;
+  width: 60px;
+  height: 60px;
+  border-radius: 10px;
+  border: none;
+  background: #333;
+  color: white;
+  touch-action: manipulation;
+}
+
+.button-label {
+  font-size: 14px;
+  color: white;
+  margin-top: 2px;
+  text-align: center;
+}
+
+#pauseButton {
+  font-size: 20px;
+  margin-top: 10px;
+  background: #555;
+}
+
+#gameOver {
+  position: absolute;
+  top: 30%;
+  left: 0;
+  right: 0;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.9);
+  padding: 20px;
+}
+
+.hidden {
+  display: none;
+}
+
+#warningText {
+  position: absolute;
+  top: 40%;
+  left: -300px;
+  font-size: 32px;
+  font-weight: bold;
+  color: red;
+  white-space: nowrap;
+}
+
+#waveText {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 28px;
+  font-weight: bold;
+  color: yellow;
+}
