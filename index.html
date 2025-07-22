@@ -8,28 +8,27 @@
 </head>
 <body>
   <canvas id="gameCanvas" width="360" height="640"></canvas>
+
   <div id="buttonArea">
     <div class="buttonWrapper">
-      <button id="leftButton">◀</button>
-      <div class="buttonLabel">左</div>
+      <button id="leftButton" class="game-button"></button>
+      <div class="button-label">左</div>
     </div>
     <div class="buttonWrapper">
-      <button id="setButton">＋</button>
-      <div class="buttonLabel">設置</div>
+      <button id="placeTurretButton" class="game-button">+</button>
+      <div class="button-label">設置</div>
     </div>
     <div class="buttonWrapper">
-      <button id="rightButton">▶</button>
-      <div class="buttonLabel">右</div>
+      <button id="rightButton" class="game-button"></button>
+      <div class="button-label">右</div>
     </div>
   </div>
-  <div id="waveMessage" class="messageBox"></div>
-  <div id="warningMessage" class="warningBox">WARNING!!</div>
-  <div id="stageClear" class="overlay">
-    <div class="overlayContent">
-      <p>面クリア！</p>
-      <button id="nextStageBtn">次へ</button>
-    </div>
+
+  <div id="messageOverlay" class="overlay hidden">
+    <div id="messageText"></div>
+    <button id="closeMessage">✖️</button>
   </div>
+
   <script src="script.js"></script>
 </body>
 </html>
