@@ -1,33 +1,36 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, user-scalable=no">
   <title>梅割りツインズ：もつ煮の逆襲</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <canvas id="gameCanvas" width="360" height="640"></canvas>
+  <canvas id="gameCanvas"></canvas>
 
-  <div id="buttonArea">
-    <div class="buttonWrapper">
-      <button id="leftButton" class="game-button"></button>
-      <div class="button-label">左</div>
+  <div id="controls">
+    <div class="button-wrapper">
+      <button id="leftButton"></button>
+      <div class="button-label">◀</div>
     </div>
-    <div class="buttonWrapper">
-      <button id="placeTurretButton" class="game-button">+</button>
+    <div class="button-wrapper">
+      <button id="setTurretButton"></button>
       <div class="button-label">設置</div>
     </div>
-    <div class="buttonWrapper">
-      <button id="rightButton" class="game-button"></button>
-      <div class="button-label">右</div>
+    <div class="button-wrapper">
+      <button id="rightButton"></button>
+      <div class="button-label">▶</div>
     </div>
   </div>
 
-  <div id="messageOverlay" class="overlay hidden">
-    <div id="messageText"></div>
-    <button id="closeMessage">✖️</button>
+  <div id="waveNotice" class="overlayText"></div>
+  <div id="warningText" class="overlayText warning"></div>
+  <div id="clearNotice" class="overlayText clear">
+    面クリア！
+    <div class="dismiss">✖️</div>
   </div>
+  <div id="gameOver" class="overlayText gameover">ゲームオーバー</div>
 
   <script src="script.js"></script>
 </body>
