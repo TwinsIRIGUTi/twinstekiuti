@@ -1,218 +1,147 @@
-const canvas = document.getElementById("gameCanvas");
-const ctx = canvas.getContext("2d");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight * 0.8;
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
 
-const player = {
-  x: canvas.width / 2,
-  y: canvas.height - 40,
-  width: 30,
-  height: 30,
-  speed: 5,
-  moveLeft: false,
-  moveRight: false
-};
+let player = { x: 180, y: 580, width: 20, height: 20, speed: 4 };
+let bullets = [];
+let enemies = [];
+let turrets = [];
+let wave = 1;
+let subwave = 0;
+let waveCleared = false;
+let score = 0;
+let movingLeft = false;
+let movingRight = false;
+let nextWaveReady = false;
 
-const bullets = [];
-const turrets = [];
-const enemies = [];
+let enemyLines = [180, 240, 300];
 
-let points = 0;
-let wave = 0;
-let currentGroup = 0;
-let waveActive = false;
-let bossPending = false;
-let gameOver = false;
-let showClear = false;
+document.getElementById('leftButton').addEventListener('touchstart', () => movingLeft = true);
+document.getElementById('leftButton').addEventListener('touchend', () => movingLeft = false);
+document.getElementById('rightButton').addEventListener('touchstart', () => movingRight = true);
+document.getElementById('rightButton').addEventListener('touchend', () => movingRight = false);
 
-const linesY = [
-  canvas.height * 0.1,
-  canvas.height * 0.25,
-  canvas.height * 0.4
-];
-
-document.getElementById("leftButton").addEventListener("touchstart", () => player.moveLeft = true);
-document.getElementById("leftButton").addEventListener("touchend", () => player.moveLeft = false);
-document.getElementById("rightButton").addEventListener("touchstart", () => player.moveRight = true);
-document.getElementById("rightButton").addEventListener("touchend", () => player.moveRight = false);
-document.getElementById("setTurretButton").addEventListener("click", () => {
-  if (turrets.length < 4 && points >= 500) {
-    turrets.push({
-      x: player.x - 10 + Math.random() * 20,
-      y: canvas.height - 60,
-      bullets: 1000
-    });
-    points -= 500;
+document.getElementById('placeButton').addEventListener('touchstart', () => {
+  if (score >= 500 && turrets.length < 4) {
+    turrets.push({ x: player.x, y: player.y - 40, bullets: 1000 });
+    score -= 500;
   }
 });
-document.querySelector(".dismiss").addEventListener("click", () => {
-  document.querySelector("#clearNotice").style.display = "none";
-  nextWave();
+
+document.getElementById('dismissButton').addEventListener('click', () => {
+  document.getElementById('messageContainer').classList.add('hidden');
+  wave++;
+  subwave = 0;
+  waveCleared = false;
+  nextWaveReady = true;
 });
 
-function spawnEnemyLine(count = 5) {
-  const line = linesY[Math.floor(Math.random() * 3)];
+function createEnemies(count, isBoss = false) {
+  const line = enemyLines[Math.floor(Math.random() * enemyLines.length)];
   for (let i = 0; i < count; i++) {
     enemies.push({
-      x: Math.random() * (canvas.width - 40),
-      y: line - i * 50,
-      width: 30,
-      height: 30,
-      hp: 5,
-      speed: 1.2,
-      line: line
+      x: line - 10,
+      y: -i * 40,
+      width: isBoss ? 40 : 20,
+      height: isBoss ? 40 : 20,
+      hp: isBoss ? 100 : 10,
+      speed: isBoss ? 0.5 : 1
     });
   }
 }
 
-function nextWave() {
-  wave++;
-  currentGroup = 0;
-  waveActive = true;
-  bossPending = false;
-  showNotice(`敵集団来襲！Wave ${wave}`);
-  setTimeout(() => spawnNextGroup(), 1000);
+function shoot() {
+  bullets.push({ x: player.x + 8, y: player.y, speed: 6 });
 }
 
-function spawnNextGroup() {
-  if (wave === 2 && currentGroup === 2 && !bossPending) {
-    bossPending = true;
-    showWarning();
-    setTimeout(() => {
-      enemies.push({
-        x: canvas.width / 2 - 50,
-        y: -100,
-        width: 100,
-        height: 100,
-        hp: 100,
-        speed: 0.8,
-        line: linesY[1],
-        isBoss: true
-      });
-    }, 2000);
-    return;
+function shootTurrets() {
+  for (let turret of turrets) {
+    if (turret.bullets > 0) {
+      bullets.push({ x: turret.x, y: turret.y, speed: 6 });
+      turret.bullets--;
+    }
   }
-
-  if (currentGroup >= 3) {
-    waveActive = false;
-    showClear = true;
-    document.getElementById("clearNotice").style.display = "block";
-    return;
-  }
-
-  spawnEnemyLine(5 + wave);
-  currentGroup++;
-}
-
-function showNotice(text) {
-  const el = document.getElementById("waveNotice");
-  el.textContent = text;
-  el.style.display = "block";
-  setTimeout(() => el.style.display = "none", 1500);
-}
-
-function showWarning() {
-  const el = document.getElementById("warningText");
-  el.textContent = "WARNING！！";
-  el.style.display = "block";
-  setTimeout(() => el.style.display = "none", 2000);
-}
-
-function fireBullet() {
-  bullets.push({
-    x: player.x + player.width / 2 - 2,
-    y: player.y,
-    speed: 6
-  });
+  turrets = turrets.filter(t => t.bullets > 0);
 }
 
 function update() {
-  if (gameOver) return;
-
-  if (player.moveLeft) player.x -= player.speed;
-  if (player.moveRight) player.x += player.speed;
+  if (movingLeft) player.x -= player.speed;
+  if (movingRight) player.x += player.speed;
   player.x = Math.max(0, Math.min(canvas.width - player.width, player.x));
 
   bullets.forEach(b => b.y -= b.speed);
-  bullets.filter(b => b.y > 0);
+  bullets = bullets.filter(b => b.y > 0);
 
-  turrets.forEach(t => {
-    if (t.bullets > 0 && Date.now() % 100 < 10) {
-      bullets.push({ x: t.x, y: t.y, speed: 5 });
-      t.bullets--;
-    }
-  });
+  enemies.forEach(e => e.y += e.speed);
 
-  enemies.forEach(e => {
-    e.y += e.speed;
-    if (Math.abs(e.y - e.line) < 5 && Math.random() < 0.01) {
-      // 少しだけライン変更の可能性
-      const idx = linesY.indexOf(e.line);
-      const delta = Math.random() < 0.5 ? -1 : 1;
-      const newIdx = Math.max(0, Math.min(2, idx + delta));
-      e.line = linesY[newIdx];
-    }
-    if (e.y > canvas.height / 2) {
-      // 以降は直進のみ
-      e.line = e.line;
-    }
-
-    // ゲームオーバー判定
-    if (
-      e.y + e.height >= player.y &&
-      e.x < player.x + player.width &&
-      e.x + e.width > player.x
-    ) {
-      gameOver = true;
-      document.getElementById("gameOver").style.display = "block";
-    }
-  });
-
-  // 弾と敵の当たり判定
-  bullets.forEach((b, i) => {
-    enemies.forEach((e, j) => {
+  // 衝突判定
+  for (let bullet of bullets) {
+    for (let enemy of enemies) {
       if (
-        b.x < e.x + e.width &&
-        b.x > e.x &&
-        b.y < e.y + e.height &&
-        b.y > e.y
+        bullet.x < enemy.x + enemy.width &&
+        bullet.x + 4 > enemy.x &&
+        bullet.y < enemy.y + enemy.height &&
+        bullet.y + 8 > enemy.y
       ) {
-        e.hp--;
-        bullets.splice(i, 1);
-        if (e.hp <= 0) enemies.splice(j, 1);
+        enemy.hp -= 10;
+        bullet.y = -10; // 削除対象にする
+        if (enemy.hp <= 0) {
+          score += 10;
+        }
       }
-    });
-  });
-
-  // Wave進行
-  if (waveActive && enemies.length === 0 && !bossPending) {
-    setTimeout(() => spawnNextGroup(), 1000);
+    }
   }
 
-  draw();
+  enemies = enemies.filter(e => e.hp > 0 && e.y < canvas.height);
+
+  // 自機衝突でゲームオーバー（未実装：デモ用）
+
+  // Wave制御
+  if (enemies.length === 0 && !waveCleared) {
+    subwave++;
+    if (wave === 1 && subwave === 1) createEnemies(10);
+    else if (wave === 1 && subwave === 2) {
+      createEnemies(8);
+      setTimeout(() => createEnemies(1, true), 1000);
+    } else {
+      waveCleared = true;
+      document.getElementById('messageContainer').classList.remove('hidden');
+    }
+  }
+
+  shootTurrets();
 }
 
 function draw() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  ctx.fillStyle = "white";
+  // 自機
+  ctx.fillStyle = 'white';
   ctx.fillRect(player.x, player.y, player.width, player.height);
 
-  ctx.fillStyle = "red";
-  bullets.forEach(b => ctx.fillRect(b.x, b.y, 4, 10));
+  // 弾
+  ctx.fillStyle = 'yellow';
+  bullets.forEach(b => ctx.fillRect(b.x, b.y, 4, 8));
 
-  ctx.fillStyle = "lime";
-  turrets.forEach(t => ctx.fillRect(t.x, t.y, 20, 20));
+  // 敵
+  ctx.fillStyle = 'red';
+  enemies.forEach(e => ctx.fillRect(e.x, e.y, e.width, e.height));
 
-  enemies.forEach(e => {
-    ctx.fillStyle = e.isBoss ? "purple" : "orange";
-    ctx.fillRect(e.x, e.y, e.width, e.height);
-    ctx.fillStyle = "white";
-    ctx.font = "12px Arial";
-    ctx.fillText(e.hp, e.x + 5, e.y + 15);
-  });
+  // タレット
+  ctx.fillStyle = 'blue';
+  turrets.forEach(t => ctx.fillRect(t.x, t.y, 10, 10));
+
+  // スコア
+  ctx.fillStyle = 'white';
+  ctx.font = '14px sans-serif';
+  ctx.fillText(`Score: ${score}`, 10, 20);
+  ctx.fillText(`Wave: ${wave}`, 10, 40);
 }
 
-setInterval(update, 1000 / 60);
-setInterval(fireBullet, 80);
-nextWave();
+function gameLoop() {
+  update();
+  draw();
+  requestAnimationFrame(gameLoop);
+}
+
+setInterval(shoot, 100); // 連射
+gameLoop();
